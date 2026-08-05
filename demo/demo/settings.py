@@ -108,6 +108,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Redis
+
+ORBITTASK_REDIS_URL = "redis://localhost:6379/0"
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
