@@ -22,5 +22,5 @@ class TaskViewSet(
         return get_permission_classes()
 
     def perform_create(self, serializer):
-        redis.lpush("orbittask:queue", str(serializer.validated_data["id"]))
-        serializer.save()
+        task = serializer.save()
+        redis.lpush("orbittask:queue", str(task.id))
