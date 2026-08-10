@@ -23,7 +23,7 @@ def get_permission_classes():
         result.append(perm())
     return result
 
-lru_cache(maxsize=1)
+@lru_cache(maxsize=1)
 def get_redis():
     url = getattr(settings, "ORBITTASK_REDIS_URL", "redis://localhost:6379/0")
     pool = redis.ConnectionPool.from_url(url, decode_responses=True)

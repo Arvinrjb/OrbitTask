@@ -22,4 +22,10 @@ class TaskSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "status",
+            "result",
+            "error",
+            "created_at",
+            "started_at",
+            "finished_at"
         ]
