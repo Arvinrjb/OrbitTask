@@ -10,7 +10,7 @@ class Task(models.Model):
         RETRYING = "RETRYING"
 
     name = models.CharField(
-        max_length=256,
+        max_length=20,
     )
     args = models.JSONField(
         default=list,
@@ -19,17 +19,17 @@ class Task(models.Model):
         default=dict,
     )
     status = models.CharField(
-        max_length=20,
+        max_length=8,
         choices=Statuses.choices,
         default=Statuses.PENDING,
     )
     result = models.CharField(
-        max_length=30,
+        max_length=256,
         null=True,
         blank=True,
     )
     error = models.CharField(
-        max_length=100,
+        max_length=50,
         blank=True,
         null=True,
     )
