@@ -30,6 +30,7 @@ class Task(models.Model):
     )
     error = models.CharField(
         max_length=50,
+        default="No Error",
         blank=True,
         null=True,
     )

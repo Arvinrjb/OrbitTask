@@ -24,6 +24,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "id",
             "status",
             "result",
+            "retries",
             "error",
             "created_at",
             "started_at",
