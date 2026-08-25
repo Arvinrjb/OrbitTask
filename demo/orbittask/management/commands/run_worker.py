@@ -7,6 +7,7 @@ from orbittask.conf import get_redis
 from orbittask.registry import TASK_registery
 
 
+# get object from database and get functions from TASK_registery 
 def get_task(id):
     try:
         obj = Task.objects.get(id=id)
@@ -15,6 +16,7 @@ def get_task(id):
     except Task.DoesNotExist:
         raise Exception("Error while get Task")
 
+# run task function
 def run_task(task_id):
     task, func = get_task(task_id)
     task.status = "RUNNING"
@@ -65,11 +67,20 @@ def run_task(task_id):
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--workers",
+            type=int,
+            default=2
+        )
+
     def handle(self, *args, **options):
+        workers=options["workers"]
         redis = get_redis()
         self.stdout.write("Worker started. Waiting for tasks...")
         self.stdout.write(f"Registered tasks: {list(TASK_registery.keys())}")
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        # for I/O bound tasks
+        with ThreadPoolExecutor(max_workers=workers) as executor:
             while True:
                 try:
                     task_redis = redis.brpop("orbittask:queue", timeout=5)
