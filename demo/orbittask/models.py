@@ -12,6 +12,12 @@ class Task(models.Model):
     name = models.CharField(
         max_length=20,
     )
+    registry = models.CharField(
+        max_length=50,
+        blank=False,
+        null=False,
+        default="hello"
+    )
     args = models.JSONField(
         default=list,
     )
@@ -60,3 +66,28 @@ class Task(models.Model):
         ordering = [
             "created_at"
         ]
+
+
+class Logs(models.Model):
+    class Level(models.TextChoices):
+        INFO = "INFO"
+        WARNING = "WARNING"
+        ERROR = "ERROR"
+
+    detail = models.TextField(
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    level = models.CharField(
+        max_length=7,
+        choices=Level.choices,
+        default=Level.INFO
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+    finished_at = models.DateTimeField(
+        blank=True,
+        null=True
+    )

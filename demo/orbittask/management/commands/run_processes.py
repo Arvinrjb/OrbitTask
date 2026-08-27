@@ -1,17 +1,18 @@
+import json
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from redis.exceptions import TimeoutError as RedisTimeoutError
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from orbittask.models import Task
 from orbittask.conf import get_redis
-from orbittask.registry import TASK_registery
+from orbittask.registry import TASK_registery_process
 
 
 # get object from database and get functions from TASK_registery 
 def get_task(id):
     try:
         obj = Task.objects.get(id=id)
-        func = TASK_registery.get(obj.name)
+        func = TASK_registery_process.get(obj.registry)
         return obj, func
     except Task.DoesNotExist:
         raise Exception("Error while get Task")
@@ -69,26 +70,28 @@ def run_task(task_id):
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
-            "--workers",
+            "--process",
             type=int,
             default=2
         )
 
     def handle(self, *args, **options):
-        workers=options["workers"]
+        process=options["process"]
         redis = get_redis()
         self.stdout.write("Worker started. Waiting for tasks...")
-        self.stdout.write(f"Registered tasks: {list(TASK_registery.keys())}")
+        self.stdout.write(f"Registered tasks: {list(TASK_registery_process.keys())}")
         # for I/O bound tasks
-        with ThreadPoolExecutor(max_workers=workers) as executor:
+        with ProcessPoolExecutor(max_workers=process) as executor:
             while True:
                 try:
-                    task_redis = redis.brpop("orbittask:queue", timeout=5)
+                    task_redis = redis.brpop("orbittask:queue:process", timeout=5)
                 except RedisTimeoutError:
                     continue
 
                 if task_redis is None:
                     continue
                 
-                _, task_id = task_redis
+                message = json.loads(task_redis[1])
+                task_id = message["id"]
                 executor.submit(run_task, task_id)
+
