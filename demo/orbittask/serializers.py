@@ -2,31 +2,34 @@ from rest_framework import serializers
 from orbittask.models import Task, Logs
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class AddTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = [
+            "name",
+            "registry",
+            "args",
+            "kwargs",
+            "max_retries",
+            "eta",
+        ]
+
+
+
+class ViewTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = [
             "id",
             "name",
-            "registry",
             "args",
             "kwargs",
-            "status",
-            "result",
-            "error",
-            "retries",
             "max_retries",
-            "eta",
-            "created_at",
-            "started_at",
-            "finished_at"
-        ]
-        read_only_fields = [
-            "id",
             "status",
             "result",
             "retries",
             "error",
+            "eta",
             "created_at",
             "started_at",
             "finished_at"

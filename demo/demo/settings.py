@@ -133,6 +133,9 @@ STATIC_URL = 'static/'
 # Task API permissions 
 # you can use custom permissions for API
 
-ORBITTASK_PERMISSION_CLASSES = [
+ORBITTASK_ADD_PERMISSION_CLASSES = [
     "rest_framework.permissions.IsAdminUser",
     ]
+ORBITTASK_VIEW_PERMISSION_CLASSES = [
+    "rest_framework.permissions.IsAdminUser"
+]
