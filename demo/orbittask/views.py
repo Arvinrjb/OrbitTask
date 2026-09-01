@@ -59,7 +59,7 @@ class LogsViewSet(
     serializer_class = LogSerializer
 
     def get_permissions(self):
-        return get_add_permission_classes()
+        return get_view_permission_classes()
 
     def get_queryset(self):
         return Logs.objects.all()

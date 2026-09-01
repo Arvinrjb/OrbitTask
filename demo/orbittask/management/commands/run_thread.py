@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from redis.exceptions import TimeoutError as RedisTimeoutError
 from concurrent.futures import ThreadPoolExecutor
-from orbittask.models import Task
+from orbittask.models import Task, Logs
 from orbittask.conf import get_redis
 from orbittask.registry import TASK_registery_thread
 
@@ -20,6 +20,11 @@ def get_task(id):
 # run task function
 def run_task(task_id):
     task, func = get_task(task_id)
+    Logs.objects.create(
+        task=task,
+        detail="Task Running",
+        level="INFO"
+    )
     task.status = "RUNNING"
     task.started_at = timezone.now()
     task.save(
@@ -37,10 +42,16 @@ def run_task(task_id):
         except:
             task.retries+=1
             continue
-
-    task.finished_at = timezone.now()
+    finish_time = timezone.now()
+    task.finished_at = finish_time
 
     if result is None:
+        Logs.objects.create(
+            task=task,
+            detail="The task did not execute successfully.",
+            level="ERROR",
+            finished_at=finish_time
+        )
         task.status = "FAILED"
         task.error = f"Error, task: {task.name}"
         task.save(
@@ -53,6 +64,12 @@ def run_task(task_id):
             ]
         )
     else:
+        Logs.objects.create(
+            task=task,
+            detail="The task executed successfully.",
+            level="INFO",
+            finished_at=finish_time
+        )
         task.status = "SUCCESS"
 
     task.result = str(result)

@@ -39,6 +39,7 @@ class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Logs
         fields = [
+            "task",
             "detail",
             "level",
             "created_at",

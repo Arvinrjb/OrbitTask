@@ -20,8 +20,14 @@ def get_task(id):
 
 # run task function
 def run_task(task_id):
+    from orbittask.models import Logs
     from django.utils import timezone
     task, func = get_task(task_id)
+    Logs.objects.create(
+        task=task,
+        detail="Task Running",
+        level="INFO"
+    )
     task.status = "RUNNING"
     task.started_at = timezone.now()
     task.save(
@@ -39,10 +45,16 @@ def run_task(task_id):
         except:
             task.retries+=1
             continue
-
-    task.finished_at = timezone.now()
+    finish_time = timezone.now()
+    task.finished_at = finish_time
 
     if result is None:
+        Logs.objects.create(
+            task=task,
+            detail="The task did not execute successfully.",
+            level="ERROR",
+            finished_at=finish_time
+        )
         task.status = "FAILED"
         task.error = f"Error, task: {task.name}"
         task.save(
@@ -55,6 +67,12 @@ def run_task(task_id):
             ]
         )
     else:
+        Logs.objects.create(
+            task=task,
+            detail="The task executed successfully.",
+            level="INFO",
+            finished_at=finish_time
+        )
         task.status = "SUCCESS"
 
     task.result = str(result)

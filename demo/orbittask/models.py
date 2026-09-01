@@ -69,6 +69,13 @@ class Task(models.Model):
 
 
 class Logs(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="Tasks",
+        null=True,
+        blank=True 
+    )
     class Level(models.TextChoices):
         INFO = "INFO"
         WARNING = "WARNING"
