@@ -31,6 +31,7 @@ class AddTaskViewSet(
         message = {
             "id": str(task.id),
             "registry": str(task.registry),
+            "eta":task.eta.isoformat() if task.eta else None
         }
         redis.lpush(queue, json.dumps(message))
 
