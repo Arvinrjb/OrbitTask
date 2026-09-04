@@ -17,7 +17,7 @@ def delay_thread():
     while not threading_event.is_set():
         now = timezone.now().timestamp()     
         tasks = redis.zrangebyscore(
-            "orbittask:delayed",
+            "orbittask:delayed:thread",
             min=0,
             max=now
         )
@@ -26,7 +26,7 @@ def delay_thread():
         for row in tasks:
             task = json.loads(row)
             task["eta"] = None
-            pipe.zrem("orbittask:delayed", row)
+            pipe.zrem("orbittask:delayed:thread", row)
             pipe.lpush("orbittask:queue:thread", json.dumps(task))
         pipe.execute()        
         threading_event.wait(timeout=1)
@@ -142,7 +142,7 @@ class Command(BaseCommand):
                     task_id = message["id"]
                     if message["eta"]:
                         eta_timestamp = parse_datetime(message["eta"]).timestamp()
-                        redis.zadd("orbittask:delayed", {json.dumps(message):eta_timestamp})
+                        redis.zadd("orbittask:delayed:thread", {json.dumps(message):eta_timestamp})
                     else:
                         executor.submit(run_task, task_id)
         except KeyboardInterrupt:
