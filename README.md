@@ -36,3 +36,5 @@ python manage.py run_processes --process 4
 - To view the logs
 #### /api/logs
 
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
