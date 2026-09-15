@@ -29,6 +29,16 @@ class Task(models.Model):
         choices=Statuses.choices,
         default=Statuses.PENDING,
     )
+    repeat = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False
+    )
+    max_repeat = models.IntegerField(
+        null=False,
+        blank=False,
+        default=1
+    )
     result = models.CharField(
         max_length=256,
         null=True,

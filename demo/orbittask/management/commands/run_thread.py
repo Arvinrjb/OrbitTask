@@ -66,7 +66,15 @@ def run_task(task_id):
     result = None
     for _ in range(task.max_retries):
         try:
-            result = func(*task.args, **task.kwargs)
+            if task.repeat:
+                if task.max_repeat > 0:
+                    i = 0
+                    while i < task.max_repeat:
+                        func(*task.args, **task.kwargs)
+                        i+=1
+                    result = f"Task {task.max_repeat} times repeated"
+            else:
+                result = func(*task.args, **task.kwargs)
             break
         except:
             task.retries+=1

@@ -10,6 +10,8 @@ class AddTaskSerializer(serializers.ModelSerializer):
             "registry",
             "args",
             "kwargs",
+            "repeat",
+            "max_repeat",
             "max_retries",
             "eta",
         ]
@@ -24,6 +26,8 @@ class ViewTaskSerializer(serializers.ModelSerializer):
             "name",
             "args",
             "kwargs",
+            "repeat",
+            "max_repeat",
             "max_retries",
             "status",
             "result",
