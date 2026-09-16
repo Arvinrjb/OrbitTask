@@ -47,5 +47,4 @@ class LogSerializer(serializers.ModelSerializer):
             "detail",
             "level",
             "created_at",
-            "finished_at"
         ]

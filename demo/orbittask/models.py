@@ -10,10 +10,10 @@ class Task(models.Model):
         RETRYING = "RETRYING"
 
     name = models.CharField(
-        max_length=20,
+        max_length=256,
     )
     registry = models.CharField(
-        max_length=50,
+        max_length=256,
         blank=False,
         null=False,
         default="hello"
@@ -39,13 +39,13 @@ class Task(models.Model):
         blank=False,
         default=1
     )
-    result = models.CharField(
-        max_length=256,
+    result = models.TextField(
+        max_length=512,
         null=True,
         blank=True,
     )
-    error = models.CharField(
-        max_length=50,
+    error = models.TextField(
+        max_length=256,
         default="No Error",
         blank=True,
         null=True,
@@ -82,7 +82,7 @@ class Logs(models.Model):
     task = models.ForeignKey(
         Task,
         on_delete=models.CASCADE,
-        related_name="Tasks",
+        related_name="logs",
         null=True,
         blank=True 
     )
@@ -99,12 +99,10 @@ class Logs(models.Model):
     level = models.CharField(
         max_length=7,
         choices=Level.choices,
-        default=Level.INFO
+        default=Level.INFO,
+        blank=True,
+        null=True
     )
     created_at = models.DateTimeField(
         auto_now_add=True
-    )
-    finished_at = models.DateTimeField(
-        blank=True,
-        null=True
     )

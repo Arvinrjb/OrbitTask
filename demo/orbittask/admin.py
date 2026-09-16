@@ -24,17 +24,16 @@ class AdminTask(admin.ModelAdmin):
 @admin.register(Logs)
 class AdminTask(admin.ModelAdmin):
     list_display = [
-        "task", 
+        "task",
+        "detail",
         "level", 
     ]
     search_fields = [
         "name",
         "created_at",
-        "finished_at"
     ]
     list_filter = [
         "task",
         "level",
         "created_at",
-        "finished_at"
     ]

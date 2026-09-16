@@ -44,8 +44,7 @@ def start_delay_thread():
 def run_task(task_id):
     import django
     django.setup()
-    from orbittask.models import Task
-    from orbittask.models import Logs
+    from orbittask.models import Task, Logs
     from django.utils import timezone
     from orbittask.registry import TASK_registery_process
 
@@ -53,6 +52,10 @@ def run_task(task_id):
         task = Task.objects.get(id=task_id)
         func = TASK_registery_process.get(task.registry)
     except Task.DoesNotExist:
+        Logs.objects.create(
+            detail="Task DoesNotExist",
+            level="ERROR"
+        )
         raise Exception("Error while get Task")
 
     Logs.objects.create(
@@ -70,21 +73,40 @@ def run_task(task_id):
     )
 
     result = None
-    for _ in range(task.max_retries):
-        try:
-            if task.repeat:
-                if task.max_repeat > 0:
-                    i = 0
-                    while i < task.max_repeat:
-                        func(*task.args, **task.kwargs)
-                        i+=1
-                    result = f"Task {task.max_repeat} times repeated"
-            else:
-                result = func(*task.args, **task.kwargs)
-            break
-        except:
-            task.retries+=1
-            continue
+    if task.max_retries > 0:
+        for _ in range(task.max_retries):
+            try:
+                if task.repeat:
+                    if task.max_repeat > 0:
+                        try:   
+                            for r in range(task.max_repeat):
+                                func(*task.args, **task.kwargs)
+                        except:
+                            Logs.objects.create(
+                                task=task,
+                                detail="Error while executing task "
+                            )
+                        finally:
+                            result = f"Task {task.max_repeat} times repeated"
+                    else:
+                        Logs.objects.create(
+                            task=task,
+                            detail="max repeat <= 0",
+                            level="ERROR"
+                        )
+                else:
+                    result = func(*task.args, **task.kwargs)
+                break
+            except:
+                task.retries+=1
+                continue    
+    else:
+        Logs.objects.create(
+            task=task,
+            detail="max retries <= 0",
+            level="ERROR"
+        )
+        
     finish_time = timezone.now()
     task.finished_at = finish_time
 
@@ -93,7 +115,6 @@ def run_task(task_id):
             task=task,
             detail="The task did not execute successfully.",
             level="ERROR",
-            finished_at=finish_time
         )
         task.status = "FAILED"
         task.error = f"Error, task: {task.name}"
@@ -111,7 +132,6 @@ def run_task(task_id):
             task=task,
             detail="The task executed successfully.",
             level="INFO",
-            finished_at=finish_time
         )
         task.status = "SUCCESS"
 
